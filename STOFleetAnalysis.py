@@ -10,12 +10,12 @@ AccountName = ""
 
 # Tacitly assuming these all exist
 Root = "D:/GameInstalls/Star Trek Online_en/Star Trek Online/Live"
-#Root = "D:/GameInstalls/test"
+# Root = "D:/GameInstalls/test"
 Pattern = "*.csv"
 #Copy_Destination = "D:/GameInstalls/Star Trek Fleet Exports"
 Copy_Destination = ""
 FILE_DATE_PATTERN = "%Y%m%d-%H%M%S"
-Field_Names =\
+Field_Names = \
   "Character Name, Account Handle, Level, Class, Guild Rank, Contribution Total, Join Date, Rank Change Date, Last Active Date, Status, Public Comment, Public Comment Last Edit Date"
 ROUND_FACTOR = 100
 # If true, only display stats for one difference (depending on FROM_START);
@@ -30,22 +30,26 @@ PRINT_FIRST = True
 
 fleetFiles = []
 
+
 def round(x):
   return int(ROUND_FACTOR * x + 0.5) / ROUND_FACTOR
+
 
 def roundInt(x):
   return int(x + 0.5)
 
+
 # From http://stackoverflow.com/questions/715417/converting-from-a-string-to-boolean-in-python
 def str2bool(value):
-    """
-       Converts 'something' to boolean. Raises exception for invalid formats
-           Possible True  values: 1, True, "1", "TRue", "yes", "y", "t"
-           Possible False values: 0, False, None, [], {}, "", "0", "faLse", "no", "n", "f", 0.0, ...
-    """
-    if str(value).lower() in ("yes", "y", "true",  "t", "1"): return True
-    if str(value).lower() in ("no",  "n", "false", "f", "0", "0.0", "", "none", "[]", "{}"): return False
-    raise Exception('Invalid value for boolean conversion: ' + str(value))
+  """
+     Converts 'something' to boolean. Raises exception for invalid formats
+         Possible True  values: 1, True, "1", "TRue", "yes", "y", "t"
+         Possible False values: 0, False, None, [], {}, "", "0", "faLse", "no", "n", "f", 0.0, ...
+  """
+  if str(value).lower() in ("yes", "y", "true", "t", "1"): return True
+  if str(value).lower() in ("no", "n", "false", "f", "0", "0.0", "", "none", "[]", "{}"): return False
+  raise Exception('Invalid value for boolean conversion: ' + str(value))
+
 
 def getVal(dict, key, default):
   if key in dict:
@@ -112,7 +116,6 @@ for f in glob.iglob(Copy_Destination + "/" + Pattern):
 fleetFiles.sort(key=lambda p: p[-1])
 shortFleetFiles = []
 
-
 if ONE_ONLY:
   # Sentinel value in case there's only one file for the last fleet in the list
   fleetFiles.append([""] * len(fleetFiles[0]))
@@ -123,7 +126,7 @@ if ONE_ONLY:
     if first[0] != current[0]:
       if FROM_START:
         shortFleetFiles.append(first)
-      elif last[1][0] != "":
+      elif last[1] != "" and last[1][0] != "":
         shortFleetFiles.append(last[1])
       if last[0] != "" and last[0][0] != "":
         shortFleetFiles.append(last[0])
@@ -181,15 +184,18 @@ for i in range(len(shortFleetFiles)):
       lastContribTotal = contribTotal
       lastFileTime = ff[2]
       lastCharContrib = charContrib
-    if PRINT_FIRST or lastFleetName == ff[0] or\
+    if PRINT_FIRST or lastFleetName == ff[0] or \
         (i < len(shortFleetFiles) - 1 and shortFleetFiles[i + 1][0] != ff[0]) or i == len(shortFleetFiles) - 1:
       print(ff[0], " ", ff[2], ": ", charName + ": ", "{:,}".format(int(charContrib)),
             ", Contrib Total: ", "{:,}".format(contribTotal), ", Members: ", members,
-            ", NonZero: ", "{:,}".format(membersZeroCount), " ({:,.2f}".format(round(fractionNonZero * 100)), "%)", sep="")
+            ", NonZero: ", "{:,}".format(membersZeroCount), " ({:,.2f}".format(round(fractionNonZero * 100)), "%)",
+            sep="")
       print("  mean  : ", "{:,}".format(roundInt(mu)), ", median  : ", "{:,}".format(roundInt(median)),
-          ", StdDev  : ", "{:,}".format(roundInt(stdev)), " ({:,.2f}".format(round(stdev / contribTotal * 100)), "%)", sep="")
+            ", StdDev  : ", "{:,}".format(roundInt(stdev)), " ({:,.2f}".format(round(stdev / contribTotal * 100)), "%)",
+            sep="")
       print("  meanNZ: ", "{:,}".format(roundInt(muNZ)), ", medianNZ: ", "{:,}".format(roundInt(medianNZ)),
-          ", StdDevNZ: ", "{:,}".format(roundInt(stdevNZ)), " ({:,.2f}".format(round(stdevNZ / contribTotal * 100)), "%)", sep="")
+            ", StdDevNZ: ", "{:,}".format(roundInt(stdevNZ)), " ({:,.2f}".format(round(stdevNZ / contribTotal * 100)),
+            "%)", sep="")
       contribDiff = contribTotal - lastContribTotal
       charContribDiff = charContrib - lastCharContrib
       timeDiff = 0
@@ -205,7 +211,8 @@ for i in range(len(shortFleetFiles)):
         charContribPerHour = charContribDiff / (timeDiff.total_seconds() / 3600)
       print("Char Contrib: ", "{:,}".format(charContribDiff),
             ", Fleet Total Contrib: ", "{:,}".format(contribDiff), " / ", "Time Diff: ", timeDiff, sep="")
-      print("Char Contrib Per Hour: ", "{:,.2f}".format(round(charContribPerHour)))  # Shouldn't have negative numbers anyway...
+      print("Char Contrib Per Hour: ",
+            "{:,.2f}".format(round(charContribPerHour)))  # Shouldn't have negative numbers anyway...
       print("Fleet Contrib Per Hour: ", "{:,.2f}".format(round(contribPerHour)),
             ", Per Member: ", round(contribPerHourPerMember), ", Per MemberNZ: ", round(contribPerHourPerMemberNZ),
             sep="")  # Shouldn't have negative numbers anyway...
@@ -218,9 +225,12 @@ for i in range(len(shortFleetFiles)):
 
 print("\n===\n")
 
-print("{0:<25}{1:<21}{2:<14}{3:<11}{4:<6}{5:<8}{6:<8}".format("Name", "Date", "Total", "Diff", "#", "% NZ", "Per Hour Per Non-Zero Member"))
+print("{0:<25}{1:<21}{2:<14}{3:<11}{4:<6}{5:<8}{6:<8}".format("Name", "Date", "Total", "Diff", "#", "% NZ",
+                                                              "Per Hour Per Non-Zero Member"))
 for s in summary:
-  print("{0:25}{1:%Y-%m-%d %H:%M:%S}{2:13,}{3: 12,}{4:5d}{5: 8.2f}{6: 9.2f}".format(s[0], s[1], s[2], s[3], s[4], 100 * s[5], int((100 * s[6] + 0.5)) / 100))
+  print("{0:25}{1:%Y-%m-%d %H:%M:%S}{2:13,}{3: 12,}{4:5d}{5: 8.2f}{6: 9.2f}".format(s[0], s[1], s[2], s[3], s[4],
+                                                                                    100 * s[5],
+                                                                                    int((100 * s[6] + 0.5)) / 100))
 
 
 
