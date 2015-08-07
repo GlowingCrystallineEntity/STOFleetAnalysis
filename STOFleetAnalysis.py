@@ -9,10 +9,9 @@ import statistics as stats
 AccountName = ""
 
 # Tacitly assuming these all exist
-Root = "D:/GameInstalls/Star Trek Online_en/Star Trek Online/Live"
+Root = ""
 # Root = "D:/GameInstalls/test"
 Pattern = "*.csv"
-#Copy_Destination = "D:/GameInstalls/Star Trek Fleet Exports"
 Copy_Destination = ""
 FILE_DATE_PATTERN = "%Y%m%d-%H%M%S"
 Field_Names = \
@@ -30,14 +29,11 @@ PRINT_FIRST = True
 
 fleetFiles = []
 
-
 def round(x):
   return int(ROUND_FACTOR * x + 0.5) / ROUND_FACTOR
 
-
 def roundInt(x):
   return int(x + 0.5)
-
 
 # From http://stackoverflow.com/questions/715417/converting-from-a-string-to-boolean-in-python
 def str2bool(value):
