@@ -112,10 +112,10 @@ for f in glob.iglob(Copy_Destination + "/" + Pattern):
 fleetFiles.sort(key=lambda p: p[-1])
 shortFleetFiles = []
 
-fleetFiles.append([""] * len(fleetFiles[0]))
-# fleetFiles.append(["" * 4])
 
 if ONE_ONLY:
+  # Sentinel value in case there's only one file for the last fleet in the list
+  fleetFiles.append([""] * len(fleetFiles[0]))
   first = fleetFiles[0]
   last = ["", first]
   for current in fleetFiles:
@@ -146,11 +146,8 @@ lastFileTime = datetime.min
 charName = ""
 lastCharContrib = 0
 charContrib = 0
-#for ff in fleetFiles:
 for i in range(len(shortFleetFiles)):
   ff = shortFleetFiles[i]
-  # if ONE_ONLY and i + 2 < len(fleetFiles) and ff[0] == fleetFiles[i + 2][0]:
-  #   continue
   with open(ff[-1]) as csvfile:
     reader = csv.DictReader(csvfile)
     contribTotal = 0
