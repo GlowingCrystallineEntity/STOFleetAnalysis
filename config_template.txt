@@ -1,0 +1,21 @@
+
+# This is the only thing that can't have a default
+AccountName = <put your account name in here>
+
+# Tacitly assuming these all exist
+Root = <put the the directory where STO saves fleet export files here -- often <install dir/live> >
+Pattern = *.csv
+Copy_Destination = <put the directory you want files moved to here>
+FILE_DATE_PATTERN = %Y%m%d-%H%M%S
+Field_Names = Character Name, Account Handle, Level, Class, Guild Rank, Contribution Total, Join Date, Rank Change Date, Last Active Date, Status, Public Comment, Public Comment Last Edit Date
+# You can change this for more precision, but it will probably break the formatting
+ROUND_FACTOR = 100
+# If true, only display stats for one difference (depending on FROM_START);
+#   if false, display stats between every two files (and FROM_START is ignored)
+ONE_ONLY = True
+# If true, display stats from first file to last file; If false, display stats between every two files; if ONE_ONLY is also
+#   true, display stats only between last two files
+FROM_START = False
+# If false, don't print the first of the diff calculation -- either the first file (if FROM_START is True),
+#  or the penultimate file (if FROM_START is False).  Ignored if ONE_ONLY is False.
+PRINT_FIRST = True
