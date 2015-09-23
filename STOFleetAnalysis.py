@@ -6,11 +6,11 @@ import re
 import csv
 import statistics as stats
 
+
 AccountName = ""
 
 # Tacitly assuming these all exist
 Root = ""
-# Root = "D:/GameInstalls/test"
 Pattern = "*.csv"
 Copy_Destination = ""
 FILE_DATE_PATTERN = "%Y%m%d-%H%M%S"
@@ -46,7 +46,6 @@ def str2bool(value):
   if str(value).lower() in ("no", "n", "false", "f", "0", "0.0", "", "none", "[]", "{}"): return False
   raise Exception('Invalid value for boolean conversion: ' + str(value))
 
-
 def getVal(dict, key, default):
   if key in dict:
     return dict[key]
@@ -60,8 +59,8 @@ if len(argv) == 2:
   script, filename = argv
 
 config = {}
-with open(filename) as f:
-  for line in f:
+with open(filename) as file:
+  for line in file:
     stripLine = line.strip()
     if stripLine == "" or stripLine[0] == "#":
       continue
@@ -72,7 +71,7 @@ with open(filename) as f:
     config[key.strip()] = val.strip()
 
 ptrn = re.compile("^<.*>$")
-AccountName = getVal(config, "AccountName", "")
+AccountName = getVal(config, "AccountName", AccountName)
 if AccountName == "" or ptrn.match(AccountName):
   raise Exception("Must define AccountName in file config.txt (or specify config file on command line)")
 Root = getVal(config, "Root", Root)
@@ -90,9 +89,9 @@ PRINT_FIRST = str2bool(getVal(config, "PRINT_FIRST", PRINT_FIRST))
 
 # Move CSV Exports out of STO install dir, into a working dir
 moveCount = 0
-for f in glob.iglob(Root + "/" + Pattern):
-  print("Moving:", f, "to:", Copy_Destination)
-  shutil.move(f, Copy_Destination)
+for file in glob.iglob(Root + "/" + Pattern):
+  print("Moving:", file, "to:", Copy_Destination)
+  shutil.move(file, Copy_Destination)
   moveCount += 1
 
 print("")
@@ -100,12 +99,12 @@ print("moved ", moveCount, " files", sep="")
 print("")
 
 # Read the filenames, and extract fleet name and export date from them
-for f in glob.iglob(Copy_Destination + "/" + Pattern):
-  fleetFile = re.split("[/\\\\_.]+", f)
+for file in glob.iglob(Copy_Destination + "/" + Pattern):
+  fleetFile = re.split("[/\\\\_.]+", file)
   dt = datetime.strptime(fleetFile[-2], FILE_DATE_PATTERN)
   splitNames = fleetFile[-3:-1]
   splitNames.append(dt)
-  splitNames.append(f)
+  splitNames.append(file)
   fleetFiles.append(splitNames)
 
 # sorting by filename implicitly sorts by date
@@ -136,7 +135,7 @@ if ONE_ONLY:
 else:
   shortFleetFiles = fleetFiles
 
-summary = []
+displaySummary = []
 
 # Read the files, and calculate and print file data
 lastFleetName = ""
@@ -146,8 +145,8 @@ charName = ""
 lastCharContrib = 0
 charContrib = 0
 for i in range(len(shortFleetFiles)):
-  ff = shortFleetFiles[i]
-  with open(ff[-1]) as csvfile:
+  fleetName = shortFleetFiles[i]
+  with open(fleetName[-1]) as csvfile:
     reader = csv.DictReader(csvfile)
     contribTotal = 0
     data = []
@@ -171,27 +170,27 @@ for i in range(len(shortFleetFiles)):
     stdevNZ = stats.pstdev(dataNonZero, muNZ)
     contribDiff = 0
     contribPerHourPerMemberNZ = 0.
-    if lastFleetName != ff[0]:
-      print("---")
-      if "" != lastFleetName:
-        print("")
-      if "" != charName:
-        print(charName + ":")
+    if lastFleetName != fleetName[0]:
+      # print("---")
+      # if "" != lastFleetName:
+      #   print("")
+      # if "" != charName:
+      #   print(charName + ":")
       lastContribTotal = contribTotal
-      lastFileTime = ff[2]
+      lastFileTime = fleetName[2]
       lastCharContrib = charContrib
-    if PRINT_FIRST or lastFleetName == ff[0] or \
-        (i < len(shortFleetFiles) - 1 and shortFleetFiles[i + 1][0] != ff[0]) or i == len(shortFleetFiles) - 1:
-      print(ff[0], " ", ff[2], ": ", charName + ": ", "{:,}".format(int(charContrib)),
-            ", Contrib Total: ", "{:,}".format(contribTotal), ", Members: ", members,
-            ", NonZero: ", "{:,}".format(membersZeroCount), " ({:,.2f}".format(round(fractionNonZero * 100)), "%)",
-            sep="")
-      print("  mean  : ", "{:,}".format(roundInt(mu)), ", median  : ", "{:,}".format(roundInt(median)),
-            ", StdDev  : ", "{:,}".format(roundInt(stdev)), " ({:,.2f}".format(round(stdev / contribTotal * 100)), "%)",
-            sep="")
-      print("  meanNZ: ", "{:,}".format(roundInt(muNZ)), ", medianNZ: ", "{:,}".format(roundInt(medianNZ)),
-            ", StdDevNZ: ", "{:,}".format(roundInt(stdevNZ)), " ({:,.2f}".format(round(stdevNZ / contribTotal * 100)),
-            "%)", sep="")
+    if PRINT_FIRST or lastFleetName == fleetName[0] or \
+        (i < len(shortFleetFiles) - 1 and shortFleetFiles[i + 1][0] != fleetName[0]) or i == len(shortFleetFiles) - 1:
+      # print(fleetName[0], " ", fleetName[2], ": ", charName + ": ", "{:,}".format(int(charContrib)),
+      #       ", Contrib Total: ", "{:,}".format(contribTotal), ", Members: ", members,
+      #       ", NonZero: ", "{:,}".format(membersZeroCount), " ({:,.2f}".format(round(fractionNonZero * 100)), "%)",
+      #       sep="")
+      # print("  mean  : ", "{:,}".format(roundInt(mu)), ", median  : ", "{:,}".format(roundInt(median)),
+      #       ", StdDev  : ", "{:,}".format(roundInt(stdev)), " ({:,.2f}".format(round(stdev / contribTotal * 100)), "%)",
+      #       sep="")
+      # print("  meanNZ: ", "{:,}".format(roundInt(muNZ)), ", medianNZ: ", "{:,}".format(roundInt(medianNZ)),
+      #       ", StdDevNZ: ", "{:,}".format(roundInt(stdevNZ)), " ({:,.2f}".format(round(stdevNZ / contribTotal * 100)),"%)",
+      #       sep="")
       contribDiff = contribTotal - lastContribTotal
       charContribDiff = charContrib - lastCharContrib
       timeDiff = 0
@@ -199,34 +198,39 @@ for i in range(len(shortFleetFiles)):
       contribPerHourPerMember = 0
       contribPerHourPerMemberNZ = 0
       charContribPerHour = 0
-      if ff[2] > lastFileTime:
-        timeDiff = ff[2] - lastFileTime
+      if fleetName[2] > lastFileTime:
+        timeDiff = fleetName[2] - lastFileTime
         contribPerHour = contribDiff / (timeDiff.total_seconds() / 3600)
         contribPerHourPerMember = contribPerHour / members
         contribPerHourPerMemberNZ = contribPerHour / membersZeroCount
         charContribPerHour = charContribDiff / (timeDiff.total_seconds() / 3600)
-      print("Char Contrib: ", "{:,}".format(charContribDiff),
-            ", Fleet Total Contrib: ", "{:,}".format(contribDiff), " / ", "Time Diff: ", timeDiff, sep="")
-      print("Char Contrib Per Hour: ",
-            "{:,.2f}".format(round(charContribPerHour)))  # Shouldn't have negative numbers anyway...
-      print("Fleet Contrib Per Hour: ", "{:,.2f}".format(round(contribPerHour)),
-            ", Per Member: ", round(contribPerHourPerMember), ", Per MemberNZ: ", round(contribPerHourPerMemberNZ),
-            sep="")  # Shouldn't have negative numbers anyway...
-      print("")
-      summary.append((ff[0], ff[2], contribTotal, contribDiff, members, fractionNonZero, contribPerHourPerMemberNZ))
-    lastFleetName = ff[0]
-    lastFileTime = ff[2]
+      # print("Char Contrib: ", "{:,}".format(charContribDiff), ", Fleet Total Contrib: ", "{:,}".format(contribDiff), " / ",
+      #       "Time Diff: ", timeDiff, sep="")
+      # print("Char Contrib Per Hour: ", "{:,.2f}".format(round(charContribPerHour)))  # Shouldn't have negative numbers anyway...
+      # print("Fleet Contrib Per Hour: ", "{:,.2f}".format(round(contribPerHour)),", Per Member: ", round(contribPerHourPerMember),
+      #       ", Per MemberNZ: ", round(contribPerHourPerMemberNZ),
+      #       sep="")  # Shouldn't have negative numbers anyway...
+      # print("")
+      displaySummary.append((charName, fleetName[0], fleetName[2], charContrib, charContribDiff, contribTotal, contribDiff, members, 100 * fractionNonZero, int((100 * contribPerHourPerMemberNZ + 0.5)) / 100))
+    lastFleetName = fleetName[0]
+    lastFileTime = fleetName[2]
     lastContribTotal = contribTotal
     lastCharContrib = charContrib
 
 print("\n===\n")
 
-print("{0:<25}{1:<21}{2:<14}{3:<11}{4:<6}{5:<8}{6:<8}".format("Name", "Date", "Total", "Diff", "#", "% NZ",
-                                                              "Per Hour Per Non-Zero Member"))
-for s in summary:
-  print("{0:25}{1:%Y-%m-%d %H:%M:%S}{2:13,}{3: 12,}{4:5d}{5: 8.2f}{6: 9.2f}".format(s[0], s[1], s[2], s[3], s[4],
-                                                                                    100 * s[5],
-                                                                                    int((100 * s[6] + 0.5)) / 100))
+print("{:<27}{:<23}{:<9}{:<9}{:<14}{:<11}{:<6}{:<8}{:<8}".format("Name", "Date", "Char", "Diff", "Total", "Diff", "#",
+                                                                 "% NZ", "Per Hour Per Non-Zero Member"))
+lastFleetName = displaySummary[0][1]
+print(displaySummary[0][0] + ":")
+for summary in displaySummary:
+  if lastFleetName != summary[1]:
+    print("")
+    print(summary[0] + ":")
+    print("{:<27}{:<23}{:<9}{:<9}{:<14}{:<11}{:<6}{:<8}{:<8}".format("Name", "Date", "Char", "Diff", "Total", "Diff", "#",
+                                                                     "% NZ", "Per Hour Per Non-Zero Member"))
+    lastFleetName = summary[1]
+  print("{:27}{:%Y-%m-%d %H:%M:%S}{:10,}{:10,}{:13,}{: 12,}{:5d}{: 8.2f}{: 9.2f}".format(*(summary[1:])))
 
 
 

@@ -1,9 +1,9 @@
 
-# This is the only thing that can't have a default
+# These are the only things that can't have a default
 AccountName = <put your account name in here>
-
-# Tacitly assuming these all exist
 Root = <put the the directory where STO saves fleet export files here -- often <install dir/live> >
+
+# Defaults here should be mostly ok.  They can change what is displayed, and how
 Pattern = *.csv
 Copy_Destination = <put the directory you want files moved to here>
 FILE_DATE_PATTERN = %Y%m%d-%H%M%S
